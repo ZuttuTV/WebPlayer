@@ -1,10 +1,6 @@
-import Player from './Player.svelte';
+import { initPlayer } from './player';
 
-    export { Player as default };
+export function createPlayer(src: string) {
+  initPlayer(src).then(r =>  console.log(r));
 
-    export function createPlayer(target: HTMLElement, props = {}) {
-      return new Player({
-        target,
-        props
-      });
-    }
+}

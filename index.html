@@ -3,10 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Player</title>
+    <title>ZPlayer Test</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #000;
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+
+    <script type="module">
+      import {createPlayer} from "./src/lib/index.ts";
+
+
+      const uri = "http://192.168.11.10:8081/stream/00aa6a9c-4bc1-44f1-bb07-28512b09128c/playlist.m3u8";
+
+      createPlayer(uri);
+    </script>
+
+    <div id="player-container"
+         data-shaka-player-container
+         data-shaka-player-cast-receiver-id="07AEE832">
+      <video data-shaka-player id="video"></video>
+    </div>
   </body>
 </html>
