@@ -25,9 +25,7 @@ export function getSkipControls(myapp: any) {
             const skipSeconds = document.createElement('span');
             skipSeconds.textContent = '+15s';
             skipSeconds.style.fontSize = '10px';
-            skipSeconds.style.position = 'absolute';
-            skipSeconds.style.bottom = '2px';
-            skipSeconds.style.right = '2px';
+            skipSeconds.style.marginLeft = '5px';
             this.button_.appendChild(skipSeconds);
 
             this.eventManager.listen(this.button_, 'click', (event: any) => {
@@ -48,6 +46,17 @@ export function getSkipControls(myapp: any) {
             this.button_.className = 'skip-back-button';
             this.parent.appendChild(this.button_);
 
+
+
+            // Add text showing skip seconds
+            const skipSeconds = document.createElement('span');
+            skipSeconds.textContent = '-5s';
+            skipSeconds.style.fontSize = '10px';
+            skipSeconds.style.fontSize = '10px';
+            skipSeconds.style.marginLeft = '5px';
+            this.button_.insertBefore(skipSeconds, this.button_.lastChild);
+
+
             // Mount the SkipBack icon
             mount(UndoDot, {
                 target: this.button_,
@@ -56,15 +65,6 @@ export function getSkipControls(myapp: any) {
                     color: 'white'
                 }
             });
-
-            // Add text showing skip seconds
-            const skipSeconds = document.createElement('span');
-            skipSeconds.textContent = '-5s';
-            skipSeconds.style.fontSize = '10px';
-            skipSeconds.style.position = 'absolute';
-            skipSeconds.style.bottom = '2px';
-            skipSeconds.style.right = '2px';
-            this.button_.appendChild(skipSeconds);
 
             this.eventManager.listen(this.button_, 'click', (event: any) => {
                 event.stopPropagation();

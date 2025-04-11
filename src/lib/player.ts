@@ -1,27 +1,43 @@
 import 'shaka-player/dist/controls.css';
 import shaka from 'shaka-player/dist/shaka-player.ui';
 import {getSkipControls} from "./skipControls";
-import {getSubtitles} from "./subtitles";
-
 
 export async function initPlayer(src: string) {
-
-
     const videoElement = document.getElementById('video') as HTMLVideoElement;
     const videoContainerElement = videoElement.parentElement;
 
-    const localPlayer = new shaka.Player();
+
+    // Add playsinline attributes programmatically
+    videoElement.setAttribute('playsinline', '');
+    videoElement.setAttribute('webkit-playsinline', '');
+    videoElement.setAttribute('x-webkit-airplay', 'allow');
+
+    // Create a new player instance
+    const localPlayer = new shaka.Player(videoElement);
+
+
+    // Configure text display settings
+    localPlayer.configure({
+        streaming: {
+            alwaysStreamText: true,
+        },
+        textDisplayer: {
+            fontScale: 1.2,
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            textBackgroundColor: 'rgba(0, 0, 0, 0.5)'
+        }
+    });
 
     // Create UI with configuration
     const ui = new shaka.ui.Overlay(
         localPlayer,
         videoContainerElement,
-        videoElement,
+        videoElement
     );
 
-
-    // Configure UI with explicit options to ensure cast button is included
+    // Configure UI
     const uiConfig = {
+        overrideNativeControls: true,     // Override native controls
 
         enableTooltips: true,
         contextMenuElements: ['statistics', 'loop'],
@@ -34,8 +50,6 @@ export async function initPlayer(src: string) {
             buffered: 'rgba(255, 255, 255, 0.54)',
             played: 'rgb(138,43,226, 0.7)',
         },
-
-
         controlPanelElements: [
             'play_pause', 'time_and_duration',
             'skip_back',
@@ -43,56 +57,50 @@ export async function initPlayer(src: string) {
             'spacer',
             'mute',
             'volume',
-            'subtitles',
-
-            // 'overflow_menu',
-
+            'captions',
             'fullscreen',
         ],
         overflowMenuButtons: [
-            'captions',
             'playback_rate',
         ],
-
     };
 
-
     getSkipControls(localPlayer);
+    ui.configure(uiConfig);
 
-    getSubtitles(localPlayer);
+    // Listen for error events
+    localPlayer.addEventListener('error', onErrorEvent);
 
-    ui.configure(uiConfig)
+    // Listen for text track events
+    localPlayer.addEventListener('texttrackvisibility', () => {
+        console.log('Text track visibility changed:', localPlayer.isTextTrackVisible());
+    });
 
+    localPlayer.addEventListener('trackschanged', () => {
+        const tracks = localPlayer.getTextTracks();
+        console.log('Available text tracks:', tracks);
+    });
 
-    await localPlayer.attach(videoElement);
-
-    const controls = ui.getControls()
-
-
-    const player = controls.getPlayer();
-
-    // Listen for error events.
-    player.addEventListener('error', onErrorEvent);
-
-    // Try to load a manifest.
-    // This is an asynchronous process.
+    // Try to load the manifest
     try {
-
-        await player.load(src);
-        // This runs if the asynchronous load is successful.
+        await localPlayer.load(src);
         console.log('The video has now been loaded!');
+
+        // Set text track visibility to true by default
+        localPlayer.setTextTrackVisibility(true);
+
+        // Log available text tracks
+        const tracks = localPlayer.getTextTracks();
+        console.log('Available text tracks:', tracks);
     } catch (e) {
-        // onError is executed if the asynchronous load fails.
         onError(e);
     }
 }
 
 function onErrorEvent(event: any) {
-    // Extract the shaka.util.Error object from the event.
     onError(event.detail);
 }
 
 function onError(error: any) {
-    // Log the error.
     console.error('Error code', error.code, 'object', error);
 }
